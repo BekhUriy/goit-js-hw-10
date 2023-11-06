@@ -35,7 +35,9 @@ const initialize = async () => {
     selectElement.removeAttribute('hidden');
   } catch (error) {
     loaderElement.style.display = 'none';
-    errorElement.style.display = 'block';
+    Notiflix.Notify.failure(
+      'Oops! Something went wrong! Try reloading the page!'
+    );
   }
 };
 
@@ -57,7 +59,9 @@ const showCatInfo = async breedId => {
     catInfoElement.style.display = 'block';
   } catch (error) {
     loaderElement.style.display = 'none';
-    errorElement.style.display = 'block';
+    Notiflix.Notify.failure(
+      'Oops! Something went wrong! Try reloading the page!'
+    );
   }
 };
 
