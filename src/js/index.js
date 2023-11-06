@@ -1,62 +1,88 @@
 import { fetchBreeds, fetchCatByBreed } from './cat-api';
+import SlimSelect from 'slim-select';
+import Notiflix from 'notiflix';
 
-const select = document.getElementById('selectId');
-const loader = document.querySelector('.loader');
-const error = document.querySelector('.error');
-const catInfo = document.querySelector('.cat-info');
-
-async function loadBreeds() {
-  try {
-    const breeds = await fetchBreeds();
-    breeds.forEach(breed => {
-      const option = document.createElement('option');
-      option.value = breed.id;
-      option.textContent = breed.name;
-      select.appendChild(option);
-    });
-    loader.style.display = 'none';
-  } catch (error) {
-    loader.style.display = 'none';
-    console.error('Error fetching breeds:', error);
-    error.style.display = 'block';
+// Функція, що показує/ховає loader
+function toggleLoader(showLoader) {
+  const loaderElement = document.querySelector('.loader');
+  if (showLoader) {
+    loaderElement.style.display = 'block';
+  } else {
+    loaderElement.style.display = 'none';
   }
 }
 
-loadBreeds();
+// Показати loader при старті
+toggleLoader(true);
 
-select.addEventListener('change', async () => {
-  const selectedValue = select.value;
-  if (selectedValue) {
-    loader.style.display = 'block';
-    catInfo.innerHTML = '';
+// Отримати список порід і відобразити їх у випадаючому списку
+fetchBreeds()
+  .then(breeds => {
+    const selectElement = document.getElementById('selectId');
+    breeds.forEach(breed => {
+      const option = document.createElement('option');
+      option.value = breed.id;
+      option.text = breed.name;
+      selectElement.add(option);
+    });
 
-    try {
-      const catData = await fetchCatByBreed(selectedValue);
-      const [catInfoData] = catData;
+    // Ініціалізувати SlimSelect після додавання опцій
+    new SlimSelect({
+      select: '#selectId',
+    });
 
-      const breedName = document.createElement('h2');
-      breedName.textContent = catInfoData.breeds[0].name;
+    // Приховати loader після завантаження порід
+    toggleLoader(false);
+  })
+  .catch(error => {
+    console.error('Error fetching breeds:', error);
+    // Показати повідомлення про помилку та приховати loader
+    const errorElement = document.querySelector('.error');
+    errorElement.style.display = 'block';
+    toggleLoader(false);
+  });
 
-      const description = document.createElement('p');
-      description.textContent = `Description: ${catInfoData.breeds[0].description}`;
+// Обробник події вибору породи
+document.getElementById('selectId').addEventListener('change', function () {
+  const selectedBreedId = this.value;
 
-      const temperament = document.createElement('p');
-      temperament.textContent = `Temperament: ${catInfoData.breeds[0].temperament}`;
+  // Показати loader перед виконанням запиту
+  toggleLoader(true);
 
-      const image = document.createElement('img');
-      image.src = catInfoData.url;
-      image.alt = catInfoData.breeds[0].name;
+  // Отримати інформацію про кота та відобразити її
+  fetchCatByBreed(selectedBreedId)
+    .then(catData => {
+      const catInfoElement = document.querySelector('.cat-info');
+      const catImage = document.createElement('img');
+      catImage.src = catData.url;
+      const catName = document.createElement('h2');
+      catName.textContent = catData.breeds[0].name;
+      const catDescription = document.createElement('p');
+      catDescription.textContent = catData.breeds[0].description;
+      const catTemperament = document.createElement('p');
+      catTemperament.textContent = `Temperament: ${catData.breeds[0].temperament}`;
 
-      catInfo.appendChild(breedName);
-      catInfo.appendChild(description);
-      catInfo.appendChild(temperament);
-      catInfo.appendChild(image);
+      // Очищаємо div.cat-info перед вставкою нових даних
+      catInfoElement.innerHTML = '';
 
-      loader.style.display = 'none';
-    } catch (error) {
-      loader.style.display = 'none';
-      console.error('Error fetching cat info:', error);
-      error.style.display = 'block';
-    }
-  }
+      // Вставка елементів
+      catInfoElement.appendChild(catImage);
+      catInfoElement.appendChild(catName);
+      catInfoElement.appendChild(catDescription);
+      catInfoElement.appendChild(catTemperament);
+
+      // Показати div.cat-info та приховати loader
+      catInfoElement.style.display = 'block';
+      toggleLoader(false);
+    })
+    .catch(error => {
+      console.error(
+        `Error fetching cat info for breed ${selectedBreedId}:`,
+        error
+      );
+      // Показати повідомлення про помилку та приховати loader
+      const errorElement = document.querySelector('.error');
+      errorElement.style.display = 'block';
+      toggleLoader(false);
+    });
 });
