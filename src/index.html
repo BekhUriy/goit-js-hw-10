@@ -10,10 +10,19 @@
 </head>
 
 <body>
-  <select class="breed-select" id="selectId"></select>
-  <p class="loader">Loading data, please wait...</p>
-  <p class="error">Oops! Something went wrong! Try reloading the page!</p>
-  <div class="cat-info"></div>
+  <div class="container">
+    <div class="loader" id="loader">Loading data, please wait...</div>
+    <div class="error" id="error">Oops! Something went wrong! Try reloading the page!</div>
+    <div class="select-container" id="selectContainer">
+      <select class="breed-select" id="selectId" hidden></select>
+    </div>
+    <div class="cat-info" id="catInfo" hidden>
+      <img src="#" alt="Cat Image" class="cat-image" id="catImage">
+      <h2 class="breed-name" id="breedName"></h2>
+      <p class="breed-description" id="breedDescription"></p>
+      <p class="breed-temperament" id="breedTemperament"></p>
+    </div>
+  </div>
 
   <script src="./js/index.js" type="module"></script>
 </body>

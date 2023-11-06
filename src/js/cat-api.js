@@ -8,7 +8,7 @@ export const fetchBreeds = async () => {
     const response = await axios.get('https://api.thecatapi.com/v1/breeds');
     return response.data;
   } catch (error) {
-    throw new Error('Failed to fetch breeds');
+    throw error;
   }
 };
 
@@ -19,6 +19,6 @@ export const fetchCatByBreed = async breedId => {
     );
     return response.data[0];
   } catch (error) {
-    throw new Error('Failed to fetch cat information');
+    throw error;
   }
 };
